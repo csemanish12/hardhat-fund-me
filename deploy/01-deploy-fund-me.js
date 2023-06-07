@@ -4,22 +4,31 @@
 
 // module.exports.default = deployFunc
 
-const { networkConfig } = require("../helper-hardhat-config")
-
+const { networkConfig, developmentChains } = require("../helper-hardhat-config")
+const {network} = require("hardhat")
 module.exports = async (hre) => {
     const { getNamedAccounts, deployments } = hre
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
 
-    const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
-
+    let ethUsdPriceFeedAddress 
+    if(developmentChains.includes(network.name)){
+        const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+        ethUsdPriceFeedAddress = ethUsdAggregator.address
+    } else {
+        ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+    }
+    // if the contract does not exist, we deploy a minimal version for our
+    // local testing
 
     // when going for localhost or hardhat network we want to use a mock
     // what happens when we want to change chains?
     const fundMe = await deploy("FundMe", {
         from: deployer,
-        args: [],
+        args: [ethUsdPriceFeedAddress],
         log: true,
     })
+    log("-------------------------------------------------")
 }
+module.exports.tags = ["all", " fundme"]
