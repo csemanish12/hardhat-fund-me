@@ -4,7 +4,7 @@ pragma solidity ^0.8.8;
 
 import "./PriceConverter.sol";
 
-error FundeMe__NotOwner();
+error FundMe__NotOwner();
 
 /**
  * @title A contract for crowd funding
@@ -27,7 +27,7 @@ contract FundMe {
 
     modifier onlyOwner() {
         if (msg.sender != i_owner) {
-            revert FundeMe__NotOwner();
+            revert FundMe__NotOwner();
         }
         _;
     }
